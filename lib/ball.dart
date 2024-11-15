@@ -4,7 +4,7 @@ class MyBall extends StatelessWidget {
   final ballX;
   final ballY;
 
-  MyBall({super.key, this.ballX, this.ballY});
+  const MyBall({super.key, this.ballX, this.ballY});
 
   @override
   Widget build(BuildContext context) {

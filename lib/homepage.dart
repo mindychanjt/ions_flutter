@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ions_flutter/ball.dart';
+import 'package:ions_flutter/brick.dart';
 import 'package:ions_flutter/coverscreen.dart';
+import 'package:ions_flutter/gameoverscreen.dart';
 import 'package:ions_flutter/player.dart';
 
 class HomePage extends StatefulWidget {
@@ -25,20 +27,58 @@ class _HomePageState extends State<HomePage> {
   double playerX = -0.2;
   double playerWidth = 0.4; // out of 2
 
+  // brick variables
+  double brickX = 0;
+  double brickY = -0.9;
+  double brickWidth = 0.4; // out of 2
+  double brickHeight = 0.05; // out of 2
+  bool brickBroken = false;
+
   // game settings
   bool hasGameStarted = false;
+  bool isGameOver = false;
 
   // start game
-
   void startGame() {
     hasGameStarted = true;
-    Timer.periodic(Duration(milliseconds: 10), (timer) {
+    Timer.periodic(const Duration(milliseconds: 10), (timer) {
       // update direction
       updateDirection();
 
       // move ball
       moveBall();
+
+      // check if player dead
+      if (isPlayerDead()) {
+        timer.cancel();
+        isGameOver = true;
+      }
+
+      // check if brick is hit
+      checkForBrokenBricks();
+
     });
+  }
+
+  void checkForBrokenBricks() {
+    // checks for when ball hits bottom of brick
+    if (ballX >= brickX && ballX <= brickX + brickWidth 
+      && ballY >= brickY + brickHeight
+      && brickBroken == false) {
+    setState(() {
+      brickBroken = true;
+      });
+    }
+  }
+
+  // is  player dead
+  bool isPlayerDead() {
+    // player dies if ball reaches the bottom of screen
+    if(ballY >= 1){
+      return true;
+    }
+    
+    return false;
   }
 
   // move ball
@@ -106,23 +146,34 @@ Widget build(BuildContext context) {
                 // tap to play
                 CoverScreen(
                   hasGameStarted: hasGameStarted,
-                ), //CoverScreen
-              
+                ), 
+                // game over screen
+                GameOverScreen(isGameOver: isGameOver),
+
                 // ball
                 MyBall(
                   ballX: ballX,
                   ballY: ballY,
-                ), //My Ball
+                ), 
       
-              //player
+                // player
                 MyPlayer(
                   playerX: playerX,
                   playerWidth: playerWidth,
                 ),
+                
+                // bricks
+                MyBrick(
+                  brickX: brickX,
+                  brickY: brickY,
+                  brickHeight: brickHeight,
+                  brickWidth: brickWidth,
+                  brickBroken: brickBroken,
+                )
               ],
-            ), 
-          ), 
-        ), 
+            ),
+          ),
+        ),
       ),
     );
   }
