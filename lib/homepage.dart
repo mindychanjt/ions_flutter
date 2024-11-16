@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   // ball variables
   double ballX = 0;
   double ballY = 0;
-  double ballXincrements = 0.01;
+  double ballXincrements = 0.02;
   double ballYincrements = 0.01;
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.LEFT;
@@ -41,7 +41,7 @@ class _HomePageState extends State<HomePage> {
       ( 2 - 
           numberOfBricksInRow * brickWidth - 
           (numberOfBricksInRow-1)*brickGap);
-  bool brickBroken = false;
+  
 
   List MyBricks = [
     // [x,y, broken = true/false]
@@ -77,18 +77,68 @@ class _HomePageState extends State<HomePage> {
   }
 
   void checkForBrokenBricks() {
-    // checks for when ball hits bottom of brick
-    if (ballX >= MyBricks[0][0] && 
-        ballX <= MyBricks[0][0] + brickWidth && 
-        ballY >= MyBricks[0][1] + brickHeight && 
-        brickBroken == false) {
-      setState(() {
-        brickBroken = true;
-        ballYDirection = direction.DOWN;
-      });
+    // checks for when ball isw inside the brick (aks hits brick)
+    for(int i = 0; i < MyBricks.length; i++) {
+      if (ballX >= MyBricks[0][0] && 
+          ballX <= MyBricks[0][0] + brickWidth && 
+          ballY >= MyBricks[0][1] + brickHeight && 
+          MyBricks[i][2] == false) {
+        setState(() {
+          MyBricks[i][2] = true;
+
+          // since brick is broken, update direction of ball based on which side of the brick it hit
+          // to do this, calculate the distance of the ball from each of the 4 sides
+          // the smallest distance is the side the ball has it
+          
+          double leftSideDist = (MyBricks[i][0] - ballX).abs();
+          double rightSideDist = (MyBricks[i][0] + brickWidth - ballX).abs();
+          double topSideDist = (MyBricks[i][1] - ballY).abs();
+          double bottomSideDist = (MyBricks[i][1] + brickWidth - ballY).abs();
+
+          String min = findMin(leftSideDist, rightSideDist, topSideDist, bottomSideDist);
+          switch (min) {
+            case 'left': ballXDirection = direction.LEFT;
+              
+              break;
+            case 'right': ballXDirection = direction.RIGHT;
+              
+              break;
+            case 'up': ballYDirection = direction.UP;
+              
+              break;
+            case 'down': ballYDirection = direction.DOWN;
+              
+              break;
+          }
+        });
+      }
     }
   }
 
+  // returns the smallest side 
+  String findMin(double a, double b, double c, double d) {
+    List<double> myList = [
+      a,
+      b,
+      c,
+      d,
+    ];
+    double currentMin = a;
+    for(int i=0; i < myList.length; i++) {
+      currentMin = myList[i];
+    }
+
+    if((currentMin - a).abs() < 0.01) {
+      return 'left';
+    } else if ((currentMin - b).abs() < 0.01) {
+      return 'right';
+    } else if ((currentMin - c).abs() < 0.01) {
+      return 'top';
+    } else if ((currentMin - d).abs() < 0.01) {
+      return 'bottom';
+    } 
+    return '';
+  }
   // is  player dead
   bool isPlayerDead() {
     // player dies if ball reaches the bottom of screen
@@ -207,23 +257,23 @@ Widget build(BuildContext context) {
                 MyBrick(
                   brickX: MyBricks[0][0],
                   brickY: MyBricks[0][1],
+                  brickBroken: MyBricks[0][2],
                   brickHeight: brickHeight,
                   brickWidth: brickWidth,
-                  brickBroken: brickBroken,
                 ),
                 MyBrick(
                   brickX: MyBricks[1][0],
                   brickY: MyBricks[1][1],
+                  brickBroken: MyBricks[1][2],
                   brickHeight: brickHeight,
                   brickWidth: brickWidth,
-                  brickBroken: brickBroken,
                 ),
                 MyBrick(
                   brickX: MyBricks[2][0],
                   brickY: MyBricks[2][1],
+                  brickBroken: MyBricks[2][2],
                   brickHeight: brickHeight,
                   brickWidth: brickWidth,
-                  brickBroken: brickBroken,
                 ),
               ],
             ),
