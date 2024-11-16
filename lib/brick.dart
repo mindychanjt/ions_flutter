@@ -21,7 +21,7 @@ class MyBrick extends StatelessWidget {
     : Container(
       alignment: Alignment((2 * brickX + brickWidth) / (2 - brickWidth), brickY),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.circular(2.5),
         child: Container(
           height: MediaQuery.of(context).size.height * brickHeight /2,
           width: MediaQuery.of(context).size.width * brickWidth /2,

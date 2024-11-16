@@ -9,7 +9,7 @@ import 'package:ions_flutter/gameoverscreen.dart';
 import 'package:ions_flutter/player.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage ({super.key});
+  const HomePage ({Key? key}): super(key:key);
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -34,13 +34,12 @@ class _HomePageState extends State<HomePage> {
   static double firstbrickX = -1 + wallGap;
   static double firstbrickY = -0.9;
   static double brickWidth = 0.4; // out of 2
-  static double brickHeight = 0.05; // out of 2
-  static double brickGap = 0.2;
+  static double brickHeight = 0.08; // out of 2
+  static double brickGap = 0.01;
   static int numberOfBricksInRow = 3;
   static double wallGap = 0.5 * 
-      ( 2 - 
-          numberOfBricksInRow * brickWidth - 
-          (numberOfBricksInRow-1)*brickGap);
+      (2 - numberOfBricksInRow * brickWidth - 
+          (numberOfBricksInRow-1) * brickGap);
   
 
   List MyBricks = [
@@ -53,10 +52,14 @@ class _HomePageState extends State<HomePage> {
   // game settings
   bool hasGameStarted = false;
   bool isGameOver = false;
+  // bool brickBroken = false;
 
   // start game
   void startGame() {
     hasGameStarted = true;
+
+    ballYDirection = direction.DOWN;
+    ballXDirection = direction.LEFT;
     Timer.periodic(const Duration(milliseconds: 10), (timer) {
       // update direction
       updateDirection();
@@ -73,15 +76,16 @@ class _HomePageState extends State<HomePage> {
       // check if brick is hit
       checkForBrokenBricks();
 
+
     });
   }
 
   void checkForBrokenBricks() {
     // checks for when ball isw inside the brick (aks hits brick)
     for(int i = 0; i < MyBricks.length; i++) {
-      if (ballX >= MyBricks[0][0] && 
-          ballX <= MyBricks[0][0] + brickWidth && 
-          ballY >= MyBricks[0][1] + brickHeight && 
+      if (ballX >= MyBricks[i][0] && 
+          ballX <= MyBricks[i][0] + brickWidth && 
+          ballY >= MyBricks[i][1] + brickHeight && 
           MyBricks[i][2] == false) {
         setState(() {
           MyBricks[i][2] = true;
@@ -93,9 +97,10 @@ class _HomePageState extends State<HomePage> {
           double leftSideDist = (MyBricks[i][0] - ballX).abs();
           double rightSideDist = (MyBricks[i][0] + brickWidth - ballX).abs();
           double topSideDist = (MyBricks[i][1] - ballY).abs();
-          double bottomSideDist = (MyBricks[i][1] + brickWidth - ballY).abs();
+          double bottomSideDist = (MyBricks[i][1] + brickHeight - ballY).abs();
 
           String min = findMin(leftSideDist, rightSideDist, topSideDist, bottomSideDist);
+          
           switch (min) {
             case 'left': ballXDirection = direction.LEFT;
               
@@ -103,12 +108,13 @@ class _HomePageState extends State<HomePage> {
             case 'right': ballXDirection = direction.RIGHT;
               
               break;
-            case 'up': ballYDirection = direction.UP;
+            case 'top': ballYDirection = direction.UP;
               
               break;
-            case 'down': ballYDirection = direction.DOWN;
+            case 'bottom': ballYDirection = direction.DOWN;
               
               break;
+            default:
           }
         });
       }
@@ -125,7 +131,9 @@ class _HomePageState extends State<HomePage> {
     ];
     double currentMin = a;
     for(int i=0; i < myList.length; i++) {
+      if(myList[i] < currentMin) {
       currentMin = myList[i];
+      }
     }
 
     if((currentMin - a).abs() < 0.01) {
@@ -198,7 +206,7 @@ class _HomePageState extends State<HomePage> {
   void moveLeft() {
     setState(() {
       // only move left if moving left doesn't move player off the screen
-      if (!(playerX - 0.2 < -1)) {
+      if (!(playerX - 0.1 <= -1)) {
           playerX -= 0.2;
         }
     });
@@ -211,6 +219,23 @@ class _HomePageState extends State<HomePage> {
           playerX += 0.2;
         }
   }
+
+  // reset game back to initial values when user hits play again
+  void resetGame() {
+    setState(() {
+      playerX = -0.2;
+      ballX = 0;
+      ballY = 0;
+      isGameOver = false;
+      hasGameStarted = false;
+      MyBricks = [
+        // [x,y, broken = true/false]
+        [firstbrickX + 0 * (brickWidth + brickGap), firstbrickY, false],
+        [firstbrickX + 1 * (brickWidth + brickGap), firstbrickY, false],
+        [firstbrickX + 2 * (brickWidth + brickGap), firstbrickY, false],
+      ]; 
+    });
+  }
   
 @override
 Widget build(BuildContext context) {
@@ -219,13 +244,15 @@ Widget build(BuildContext context) {
     autofocus: true,
     onKeyEvent: (event) {
       // Use RawKeyDownEvent to detect the key press only once (avoiding repeated triggers)
-      if (event is KeyDownEvent) {
         if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
           moveLeft();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           moveRight();
         }
-      }
+        
+        if(event.logicalKey == LogicalKeyboardKey.keyK) {
+          isGameOver = true;
+        }
     },
       child: GestureDetector(
         onTap: startGame,
@@ -237,14 +264,21 @@ Widget build(BuildContext context) {
                 // tap to play
                 CoverScreen(
                   hasGameStarted: hasGameStarted,
+                  isGameOver: isGameOver,
                 ), 
+
                 // game over screen
-                GameOverScreen(isGameOver: isGameOver),
+                GameOverScreen(
+                  isGameOver: isGameOver,
+                  function: resetGame
+                ),
 
                 // ball
                 MyBall(
                   ballX: ballX,
                   ballY: ballY,
+                  hasGameStarted: hasGameStarted,
+                  isGameOver: isGameOver,
                 ), 
       
                 // player
