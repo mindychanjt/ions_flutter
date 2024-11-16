@@ -15,24 +15,32 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-enum direction { UP, DOWN }
+enum direction { UP, DOWN, LEFT, RIGHT }
 
 class _HomePageState extends State<HomePage> {
   // ball variables
   double ballX = 0;
   double ballY = 0;
-  var ballDirection = direction.DOWN;
+  double ballXincrements = 0.01;
+  double ballYincrements = 0.01;
+  var ballYDirection = direction.DOWN;
+  var ballXDirection = direction.LEFT;
 
   // player variables
   double playerX = -0.2;
   double playerWidth = 0.4; // out of 2
 
   // brick variables
-  double brickX = 0;
-  double brickY = -0.9;
-  double brickWidth = 0.4; // out of 2
-  double brickHeight = 0.05; // out of 2
+  static double firstbrickX = -0.5;
+  static double firstbrickY = -0.9;
+  static double brickWidth = 0.4; // out of 2
+  static double brickHeight = 0.05; // out of 2
   bool brickBroken = false;
+
+  List MyBricks = (
+    // [x,y, broken = true/false]
+    [firstbrickX, firstbrickY, false]
+  ); 
 
   // game settings
   bool hasGameStarted = false;
@@ -62,11 +70,13 @@ class _HomePageState extends State<HomePage> {
 
   void checkForBrokenBricks() {
     // checks for when ball hits bottom of brick
-    if (ballX >= brickX && ballX <= brickX + brickWidth 
-      && ballY >= brickY + brickHeight
-      && brickBroken == false) {
-    setState(() {
-      brickBroken = true;
+    if (ballX >= MyBricks[0][0] && 
+        ballX <= MyBricks[0][0] + brickWidth && 
+        ballY >= MyBricks[0][1] + brickHeight && 
+        brickBroken == false) {
+      setState(() {
+        brickBroken = true;
+        ballYDirection = direction.DOWN;
       });
     }
   }
@@ -84,10 +94,19 @@ class _HomePageState extends State<HomePage> {
   // move ball
   void moveBall() {
     setState(() {
-      if (ballDirection == direction.DOWN) {
-        ballY += 0.01;
-      } else if (ballDirection == direction.UP) {
-        ballY -= 0.01;
+
+      // move horizontally
+      if (ballXDirection == direction.LEFT) {
+        ballX -= ballXincrements;
+      } else if (ballXDirection == direction.RIGHT) {
+        ballX += ballXincrements;
+      }
+
+      //move vertically
+      if (ballYDirection == direction.DOWN) {
+        ballY += ballYincrements;
+      } else if (ballYDirection == direction.UP) {
+        ballY -= ballYincrements;
       }
     });
   }
@@ -95,11 +114,25 @@ class _HomePageState extends State<HomePage> {
   // update direction of the ball
   void updateDirection() {
     setState(() {
+
+      // ball goes up when it hits player 
       if (ballY >= 0.9 && ballX >= playerX && ballX <= playerX + playerWidth) {
-      ballDirection = direction.UP;
-    } else if (ballY <= -0.9) {
-          ballDirection = direction.DOWN;
-    }
+      ballYDirection = direction.UP;
+      } 
+      // ball goes down when it hits the top of screen
+      else if (ballY <= -1) {
+          ballYDirection = direction.DOWN;
+      }
+
+      // ball goes left when it hits right wall
+      if(ballX >= 1) {
+        ballXDirection = direction.LEFT;
+      } 
+
+      // ball goes right when it hits left wall
+      else if (ballX <= -1){
+        ballXDirection = direction.RIGHT;
+      }
     });
   }
 
