@@ -31,16 +31,24 @@ class _HomePageState extends State<HomePage> {
   double playerWidth = 0.4; // out of 2
 
   // brick variables
-  static double firstbrickX = -0.5;
+  static double firstbrickX = -1 + wallGap;
   static double firstbrickY = -0.9;
   static double brickWidth = 0.4; // out of 2
   static double brickHeight = 0.05; // out of 2
+  static double brickGap = 0.2;
+  static int numberOfBricksInRow = 3;
+  static double wallGap = 0.5 * 
+      ( 2 - 
+          numberOfBricksInRow * brickWidth - 
+          (numberOfBricksInRow-1)*brickGap);
   bool brickBroken = false;
 
-  List MyBricks = (
+  List MyBricks = [
     // [x,y, broken = true/false]
-    [firstbrickX, firstbrickY, false]
-  ); 
+    [firstbrickX + 0 * (brickWidth + brickGap), firstbrickY, false],
+    [firstbrickX + 1 * (brickWidth + brickGap), firstbrickY, false],
+    [firstbrickX + 2 * (brickWidth + brickGap), firstbrickY, false],
+  ]; 
 
   // game settings
   bool hasGameStarted = false;
@@ -197,12 +205,26 @@ Widget build(BuildContext context) {
                 
                 // bricks
                 MyBrick(
-                  brickX: brickX,
-                  brickY: brickY,
+                  brickX: MyBricks[0][0],
+                  brickY: MyBricks[0][1],
                   brickHeight: brickHeight,
                   brickWidth: brickWidth,
                   brickBroken: brickBroken,
-                )
+                ),
+                MyBrick(
+                  brickX: MyBricks[1][0],
+                  brickY: MyBricks[1][1],
+                  brickHeight: brickHeight,
+                  brickWidth: brickWidth,
+                  brickBroken: brickBroken,
+                ),
+                MyBrick(
+                  brickX: MyBricks[2][0],
+                  brickY: MyBricks[2][1],
+                  brickHeight: brickHeight,
+                  brickWidth: brickWidth,
+                  brickBroken: brickBroken,
+                ),
               ],
             ),
           ),
