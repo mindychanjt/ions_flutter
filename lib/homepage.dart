@@ -31,20 +31,26 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   var ballXDirection = Direction.LEFT;
   var ballYDirection = Direction.DOWN;
 
+// player variables
   double playerX = -0.2;
   double playerWidth = 0.4;
 
-  // Initialize the list of bricks
-  List<List<dynamic>> MyBricks = [
-    [0.1, -0.5, false],
-    [0.4, -0.5, false],
-    [0.7, -0.5, false],
+  // brick variables
+  static double firstBrickX = -1 + wallGap;
+  static double firstBrickY = -0.9;
+  static double brickWidth = 0.4;
+  static double brickHeight = 0.05;
+  static double brickGap = 0.01;
+  static int numberOfBricksInRow = 4;
+  static double wallGap = 0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow-1) * brickGap);
+  bool brickBroken = false;
+
+  List MyBricks = [
+    // [x,y,broken =true/false]
+    [firstBrickX + 0*(brickWidth + brickGap),firstBrickY,false],
+    [firstBrickX + 1*(brickWidth + brickGap), firstBrickY,false],
+    [firstBrickX + 2*(brickWidth + brickGap), firstBrickY,false],
   ];
-
-  final double brickWidth = 0.2;
-  final double brickHeight = 0.05;
-  final double brickGap = 0.03;
-
   @override
   void initState() {
     super.initState();
@@ -174,16 +180,15 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  // Generate bricks and center them
-  List<List<dynamic>> generateBricks() {
-    final double centerX = 0; // Center of the screen (normalized X = 0)
-    final double brickSpacing = 0.1;
-    return [
-      [centerX - 1.5 * brickWidth, -0.5, false],  // First brick
-      [centerX - 0.5 * brickWidth, -0.5, false],  // Second brick
-      [centerX + 0.5 * brickWidth, -0.5, false],  // Third brick
-    ];
-  }
+List<List<dynamic>> generateBricks() {
+  return [
+    [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false],
+    // Add more bricks as needed
+  ];
+}
+
 
   @override
   void dispose() {
