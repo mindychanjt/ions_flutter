@@ -52,24 +52,27 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     [firstBrickX + 1*(brickWidth + brickGap), firstBrickY,false],
     [firstBrickX + 2*(brickWidth + brickGap), firstBrickY,false],
   ];
-  @override
-  void initState() {
-    super.initState();
-    _ticker = createTicker((Duration elapsed) {
-      if (hasGameStarted && !isGameOver) {
-        setState(() {
-          updateDirection();
-          moveBall();
-          checkForBrokenBricks();
+  
+@override
+void initState() {
+  super.initState();
+  MyBricks = generateBricks(3); // Start with 3 rows
+  _ticker = createTicker((Duration elapsed) {
+    if (hasGameStarted && !isGameOver) {
+      setState(() {
+        updateDirection();
+        moveBall();
+        checkForBrokenBricks();
 
-          if (isPlayerDead()) {
-            isGameOver = true;
-            _ticker.stop();
-          }
-        });
-      }
-    });
-  }
+        if (isPlayerDead()) {
+          isGameOver = true;
+          _ticker.stop();
+        }
+      });
+    }
+  });
+}
+
 
   void startGame() {
     setState(() {
@@ -108,42 +111,48 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     }
   }
 
-  void checkForBrokenBricks() {
-    for (int i = 0; i < MyBricks.length; i++) {
-      if (ballX >= MyBricks[i][0] &&
-          ballX <= MyBricks[i][0] + brickWidth &&
-          ballY >= MyBricks[i][1] &&
-          ballY <= MyBricks[i][1] + brickHeight &&
-          MyBricks[i][2] == false) {
-        setState(() {
-          MyBricks[i][2] = true;
+void checkForBrokenBricks() {
+  for (int i = 0; i < MyBricks.length; i++) {
+    if (ballX >= MyBricks[i][0] &&
+        ballX <= MyBricks[i][0] + brickWidth &&
+        ballY >= MyBricks[i][1] &&
+        ballY <= MyBricks[i][1] + brickHeight &&
+        MyBricks[i][2] == false) {
+      setState(() {
+        MyBricks[i][2] = true;
 
-          double leftDist = (MyBricks[i][0] - ballX).abs();
-          double rightDist = (MyBricks[i][0] + brickWidth - ballX).abs();
-          double topDist = (MyBricks[i][1] - ballY).abs();
-          double bottomDist = (MyBricks[i][1] + brickHeight - ballY).abs();
+        double leftDist = (MyBricks[i][0] - ballX).abs();
+        double rightDist = (MyBricks[i][0] + brickWidth - ballX).abs();
+        double topDist = (MyBricks[i][1] - ballY).abs();
+        double bottomDist = (MyBricks[i][1] + brickHeight - ballY).abs();
 
-          String collisionSide =
-              findMin(leftDist, rightDist, topDist, bottomDist);
+        String collisionSide =
+            findMin(leftDist, rightDist, topDist, bottomDist);
 
-          switch (collisionSide) {
-            case 'left':
-              ballXDirection = Direction.LEFT;
-              break;
-            case 'right':
-              ballXDirection = Direction.RIGHT;
-              break;
-            case 'top':
-              ballYDirection = Direction.UP;
-              break;
-            case 'bottom':
-              ballYDirection = Direction.DOWN;
-              break;
-          }
-        });
-      }
+        switch (collisionSide) {
+          case 'left':
+            ballXDirection = Direction.LEFT;
+            break;
+          case 'right':
+            ballXDirection = Direction.RIGHT;
+            break;
+          case 'top':
+            ballYDirection = Direction.UP;
+            break;
+          case 'bottom':
+            ballYDirection = Direction.DOWN;
+            break;
+        }
+      });
     }
   }
+
+  // Check if all bricks are broken
+  if (MyBricks.every((brick) => brick[2] == true)) {
+    addBrickRow();
+  }
+}
+
 
   String findMin(double left, double right, double top, double bottom) {
     final distances = {'left': left, 'right': right, 'top': top, 'bottom': bottom};
@@ -170,25 +179,28 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  void resetGame() {
-    setState(() {
-      playerX = -0.2;
-      ballX = 0;
-      ballY = 0;
-      isGameOver = false;
-      hasGameStarted = false;
-      MyBricks = generateBricks(); // Generate new bricks
-    });
-  }
+void resetGame() {
+  setState(() {
+    playerX = -0.2;
+    ballX = 0;
+    ballY = 0;
+    isGameOver = false;
+    hasGameStarted = false;
+    MyBricks = generateBricks(3); // Start with 3 rows of bricks
+  });
+}
 
 List<List<dynamic>> generateBricks() {
   return [
     [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 3 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 4 * (brickWidth + brickGap), firstBrickY, false],
     // Add more bricks as needed
   ];
 }
+
 
 
   @override
