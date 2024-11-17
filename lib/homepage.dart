@@ -31,6 +31,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   var ballXDirection = Direction.LEFT;
   var ballYDirection = Direction.DOWN;
 
+
 // player variables
   double playerX = -0.2;
   double playerWidth = 0.4;
@@ -41,7 +42,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   static double brickWidth = 0.4;
   static double brickHeight = 0.05;
   static double brickGap = 0.01;
-  static int numberOfBricksInRow = 3;
+  static int numberOfBricksInRow = 5;
   static double wallGap = 0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow-1) * brickGap);
   bool brickBroken = false;
 
@@ -50,6 +51,8 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     [firstBrickX + 0*(brickWidth + brickGap),firstBrickY,false],
     [firstBrickX + 1*(brickWidth + brickGap), firstBrickY,false],
     [firstBrickX + 2*(brickWidth + brickGap), firstBrickY,false],
+    [firstBrickX + 3*(brickWidth + brickGap), firstBrickY,false],
+    [firstBrickX + 4*(brickWidth + brickGap), firstBrickY,false],
   ];
   @override
   void initState() {
@@ -185,6 +188,8 @@ List<List<dynamic>> generateBricks() {
     [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 3 * (brickWidth + brickGap), firstBrickY, false],
+    [firstBrickX + 4 * (brickWidth + brickGap), firstBrickY, false],
     // Add more bricks as needed
   ];
 }
