@@ -51,8 +51,6 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     [firstBrickX + 0*(brickWidth + brickGap),firstBrickY,false],
     [firstBrickX + 1*(brickWidth + brickGap), firstBrickY,false],
     [firstBrickX + 2*(brickWidth + brickGap), firstBrickY,false],
-    [firstBrickX + 3*(brickWidth + brickGap), firstBrickY,false],
-    [firstBrickX + 4*(brickWidth + brickGap), firstBrickY,false],
   ];
   @override
   void initState() {
@@ -188,8 +186,6 @@ List<List<dynamic>> generateBricks() {
     [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
     [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 3 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 4 * (brickWidth + brickGap), firstBrickY, false],
     // Add more bricks as needed
   ];
 }
