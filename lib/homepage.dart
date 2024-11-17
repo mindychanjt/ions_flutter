@@ -74,6 +74,7 @@ void initState() {
 }
 
 
+
   void startGame() {
     setState(() {
       hasGameStarted = true;
@@ -153,6 +154,15 @@ void checkForBrokenBricks() {
   }
 }
 
+void addBrickRow() {
+  setState(() {
+    double newRowY = firstBrickY - (MyBricks.length ~/ numberOfBricksInRow) * (brickHeight + brickGap);
+    for (int col = 0; col < numberOfBricksInRow; col++) {
+      double brickX = firstBrickX + col * (brickWidth + brickGap);
+      MyBricks.add([brickX, newRowY, false]);
+    }
+  });
+}
 
   String findMin(double left, double right, double top, double bottom) {
     final distances = {'left': left, 'right': right, 'top': top, 'bottom': bottom};
@@ -190,16 +200,19 @@ void resetGame() {
   });
 }
 
-List<List<dynamic>> generateBricks() {
-  return [
-    [firstBrickX + 0 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 1 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 2 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 3 * (brickWidth + brickGap), firstBrickY, false],
-    [firstBrickX + 4 * (brickWidth + brickGap), firstBrickY, false],
-    // Add more bricks as needed
-  ];
+
+List<List<dynamic>> generateBricks(int rows) {
+  List<List<dynamic>> bricks = [];
+  for (int row = 0; row < rows; row++) {
+    double rowY = firstBrickY - (row * (brickHeight + brickGap)); // Adjust vertical position
+    for (int col = 0; col < numberOfBricksInRow; col++) {
+      double brickX = firstBrickX + col * (brickWidth + brickGap);
+      bricks.add([brickX, rowY, false]);
+    }
+  }
+  return bricks;
 }
+
 
 
 
