@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 class CoverScreen extends StatelessWidget {
   final bool hasGameStarted;
-  final isGameOver;
+  final bool isGameOver;
 
   // font
   static var gameFont = GoogleFonts.pressStart2p(

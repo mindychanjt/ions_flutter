@@ -1,30 +1,37 @@
 import 'package:flutter/material.dart';
 
 class MyBrick extends StatelessWidget {
-  final brickX;
-  final brickY;
-  final brickHeight;
-  final brickWidth;
+  final double brickX;
+  final double brickY;
+  final double brickHeight;
+  final double brickWidth;
   final bool brickBroken;
 
-  const MyBrick(
-    {super.key, this.brickHeight,
-    this.brickWidth,
-    this.brickX,
-    this.brickY,
-    required this.brickBroken});
+  const MyBrick({
+    super.key,
+    required this.brickHeight,
+    required this.brickWidth,
+    required this.brickX,
+    required this.brickY,
+    required this.brickBroken,
+  });
 
   @override
-  Widget build(BuildContext context){
-    return brickBroken 
-    ? Container()
-    : Container(
-      alignment: Alignment((2 * brickX + brickWidth) / (2 - brickWidth), brickY),
+  Widget build(BuildContext context) {
+    if (brickBroken) {
+      return const SizedBox.shrink(); // More efficient than an empty Container
+    }
+
+    return Align(
+      alignment: Alignment(
+        (2 * brickX + brickWidth) / (2 - brickWidth),
+        brickY,
+      ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(2.5),
         child: Container(
-          height: MediaQuery.of(context).size.height * brickHeight /2,
-          width: MediaQuery.of(context).size.width * brickWidth /2,
+          height: MediaQuery.of(context).size.height * brickHeight / 2,
+          width: MediaQuery.of(context).size.width * brickWidth / 2,
           color: Colors.deepPurple,
         ),
       ),
