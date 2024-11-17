@@ -41,7 +41,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   static double brickWidth = 0.4;
   static double brickHeight = 0.05;
   static double brickGap = 0.01;
-  static int numberOfBricksInRow = 4;
+  static int numberOfBricksInRow = 3;
   static double wallGap = 0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow-1) * brickGap);
   bool brickBroken = false;
 
