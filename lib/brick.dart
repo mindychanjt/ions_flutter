@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-// step 1: explain Stateless vs Stateful:
+// STEP 1: explain Stateless vs Stateful:
 class MyBrick extends StatelessWidget {
 
-  // step 2: set up the fields in a Dart class
 
   /*
+ STEP 2:
+        set up the fields in a Dart class
   It represents the properties of a "brick" object.
   brickX -> X-coordinate of the brick's position on a screen
   brickY -> Y-coordinate of the brick's position 
