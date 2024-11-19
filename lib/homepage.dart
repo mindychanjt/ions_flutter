@@ -20,60 +20,56 @@ enum Direction { UP, DOWN, LEFT, RIGHT }
 
 class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   late Ticker _ticker;
+
+  // Game state variables
   final FocusNode _focusNode = FocusNode();
   bool hasGameStarted = false;
   bool isGameOver = false;
 
+  // Ball variables
   double ballX = 0;
   double ballY = 0;
-  double ballXincrements = 0.02;
-  double ballYincrements = 0.01;
-  var ballXDirection = Direction.LEFT;
-  var ballYDirection = Direction.DOWN;
+  static const double ballXIncrements = 0.02;
+  static const double ballYIncrements = 0.01;
+  Direction ballXDirection = Direction.LEFT;
+  Direction ballYDirection = Direction.DOWN;
 
-
-// player variables
+  // Player variables
   double playerX = -0.2;
-  double playerWidth = 0.4;
+  static const double playerWidth = 0.4;
 
-  // brick variables
-  static double firstBrickX = -1 + wallGap;
-  static double firstBrickY = -0.9;
-  static double brickWidth = 0.4;
-  static double brickHeight = 0.05;
-  static double brickGap = 0.01;
-  static int numberOfBricksInRow = 5;
-  static double wallGap = 0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow-1) * brickGap);
-  bool brickBroken = false;
+  // Brick configuration
+  static const double brickWidth = 0.4;
+  static const double brickHeight = 0.05;
+  static const double brickGap = 0.01;
+  static const int numberOfBricksInRow = 2;
+  static const double wallGap = 
+      0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow - 1) * brickGap);
+  static const double firstBrickX = -1 + wallGap;
+  static const double firstBrickY = -0.7;
 
-  List MyBricks = [
-    // [x,y,broken =true/false]
-    [firstBrickX + 0*(brickWidth + brickGap),firstBrickY,false],
-    [firstBrickX + 1*(brickWidth + brickGap), firstBrickY,false],
-    [firstBrickX + 2*(brickWidth + brickGap), firstBrickY,false],
-  ];
-  
-@override
-void initState() {
-  super.initState();
-  MyBricks = generateBricks(3); // Start with 3 rows
-  _ticker = createTicker((Duration elapsed) {
-    if (hasGameStarted && !isGameOver) {
-      setState(() {
-        updateDirection();
-        moveBall();
-        checkForBrokenBricks();
+  // Brick list
+  List<List<dynamic>> bricks = [];
 
-        if (isPlayerDead()) {
-          isGameOver = true;
-          _ticker.stop();
-        }
-      });
-    }
-  });
-}
+  @override
+  void initState() {
+    super.initState();
+    bricks = generateBricks(3); // Start with 3 rows
+    _ticker = createTicker((Duration elapsed) {
+      if (hasGameStarted && !isGameOver) {
+        setState(() {
+          updateDirection();
+          moveBall();
+          checkForBrokenBricks();
 
-
+          if (isPlayerDead()) {
+            isGameOver = true;
+            _ticker.stop();
+          }
+        });
+      }
+    });
+  }
 
   void startGame() {
     setState(() {
@@ -84,20 +80,20 @@ void initState() {
 
   void moveBall() {
     if (ballXDirection == Direction.LEFT) {
-      ballX -= ballXincrements;
+      ballX -= ballXIncrements;
     } else if (ballXDirection == Direction.RIGHT) {
-      ballX += ballXincrements;
+      ballX += ballXIncrements;
     }
 
     if (ballYDirection == Direction.UP) {
-      ballY -= ballYincrements;
+      ballY -= ballYIncrements;
     } else if (ballYDirection == Direction.DOWN) {
-      ballY += ballYincrements;
+      ballY += ballYIncrements;
     }
   }
 
   void updateDirection() {
-    // Ball collision with the player
+    // Ball collision with player paddle
     if (ballY >= 0.9 && ballX >= playerX && ballX <= playerX + playerWidth) {
       ballYDirection = Direction.UP;
     } else if (ballY <= -1) {
@@ -112,109 +108,104 @@ void initState() {
     }
   }
 
-void checkForBrokenBricks() {
-  for (int i = 0; i < MyBricks.length; i++) {
-    if (ballX >= MyBricks[i][0] &&
-        ballX <= MyBricks[i][0] + brickWidth &&
-        ballY >= MyBricks[i][1] &&
-        ballY <= MyBricks[i][1] + brickHeight &&
-        MyBricks[i][2] == false) {
-      setState(() {
-        MyBricks[i][2] = true;
+  void checkForBrokenBricks() {
+    for (int i = 0; i < bricks.length; i++) {
+      final brick = bricks[i];
+      if (ballX >= brick[0] &&
+          ballX <= brick[0] + brickWidth &&
+          ballY >= brick[1] &&
+          ballY <= brick[1] + brickHeight &&
+          !brick[2]) {
+        setState(() {
+          brick[2] = true;
 
-        double leftDist = (MyBricks[i][0] - ballX).abs();
-        double rightDist = (MyBricks[i][0] + brickWidth - ballX).abs();
-        double topDist = (MyBricks[i][1] - ballY).abs();
-        double bottomDist = (MyBricks[i][1] + brickHeight - ballY).abs();
+          // Determine collision side
+          final collisionSide = findMin({
+            'left': (brick[0] - ballX).abs(),
+            'right': (brick[0] + brickWidth - ballX).abs(),
+            'top': (brick[1] - ballY).abs(),
+            'bottom': (brick[1] + brickHeight - ballY).abs(),
+          });
 
-        String collisionSide =
-            findMin(leftDist, rightDist, topDist, bottomDist);
+          switch (collisionSide) {
+            case 'left':
+              ballXDirection = Direction.LEFT;
+              break;
+            case 'right':
+              ballXDirection = Direction.RIGHT;
+              break;
+            case 'top':
+              ballYDirection = Direction.UP;
+              break;
+            case 'bottom':
+              ballYDirection = Direction.DOWN;
+              break;
+          }
+        });
+      }
+    }
 
-        switch (collisionSide) {
-          case 'left':
-            ballXDirection = Direction.LEFT;
-            break;
-          case 'right':
-            ballXDirection = Direction.RIGHT;
-            break;
-          case 'top':
-            ballYDirection = Direction.UP;
-            break;
-          case 'bottom':
-            ballYDirection = Direction.DOWN;
-            break;
-        }
-      });
+    // Add a new row of bricks if all are broken
+    if (bricks.every((brick) => brick[2])) {
+      addBrickRow();
     }
   }
 
-  // Check if all bricks are broken
-  if (MyBricks.every((brick) => brick[2] == true)) {
-    addBrickRow();
-  }
-}
-
-void addBrickRow() {
-  setState(() {
-    double newRowY = firstBrickY - (MyBricks.length ~/ numberOfBricksInRow) * (brickHeight + brickGap);
+  void addBrickRow() {
+    final newRowY =
+        firstBrickY - (bricks.length ~/ numberOfBricksInRow) * (brickHeight + brickGap);
     for (int col = 0; col < numberOfBricksInRow; col++) {
-      double brickX = firstBrickX + col * (brickWidth + brickGap);
-      MyBricks.add([brickX, newRowY, false]);
+      final brickX = firstBrickX + col * (brickWidth + brickGap);
+      bricks.add([brickX, newRowY, false]);
     }
-  });
-}
+  }
 
-  String findMin(double left, double right, double top, double bottom) {
-    final distances = {'left': left, 'right': right, 'top': top, 'bottom': bottom};
+  String findMin(Map<String, double> distances) {
     return distances.entries.reduce((a, b) => a.value < b.value ? a : b).key;
   }
 
   bool isPlayerDead() {
-    return ballY >= 1; // Ball hits the top of the screen
+    return ballY >= 1; // Ball falls below screen
   }
 
   void moveLeft() {
-    setState(() {
-      if (!(playerX - 0.1 <= -1)) {
+    if (playerX > -1) {
+      setState(() {
         playerX -= 0.2;
-      }
-    });
+      });
+    }
   }
 
   void moveRight() {
-    setState(() {
-      if (!(playerX + playerWidth >= 1)) {
+    if (playerX + playerWidth < 1) {
+      setState(() {
         playerX += 0.2;
-      }
+      });
+    }
+  }
+
+  void resetGame() {
+    setState(() {
+      playerX = -0.2;
+      ballX = 0;
+      ballY = 0;
+      isGameOver = false;
+      hasGameStarted = false;
+      bricks = generateBricks(3); // Reset with 3 rows of bricks
     });
   }
 
-void resetGame() {
-  setState(() {
-    playerX = -0.2;
-    ballX = 0;
-    ballY = 0;
-    isGameOver = false;
-    hasGameStarted = false;
-    MyBricks = generateBricks(3); // Start with 3 rows of bricks
-  });
-}
-
-
-List<List<dynamic>> generateBricks(int rows) {
-  List<List<dynamic>> bricks = [];
-  for (int row = 0; row < rows; row++) {
-    double rowY = firstBrickY - (row * (brickHeight + brickGap)); // Adjust vertical position
-    for (int col = 0; col < numberOfBricksInRow; col++) {
-      double brickX = firstBrickX + col * (brickWidth + brickGap);
-      bricks.add([brickX, rowY, false]);
+  List<List<dynamic>> generateBricks(int rows) {
+    final List<List<dynamic>> newBricks = [];
+    for (int row = 0; row < rows; row++) {
+      final rowY = firstBrickY - row * (brickHeight + brickGap);
+      for (int col = 0; col < numberOfBricksInRow; col++) {
+        final brickX = firstBrickX + col * (brickWidth + brickGap);
+        newBricks.add([brickX, rowY, false]);
+      }
     }
+    return newBricks;
   }
-  return bricks;
-}
-
-
-
 
   @override
   void dispose() {
@@ -233,9 +224,10 @@ List<List<dynamic>> generateBricks(int rows) {
           moveLeft();
         } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
           moveRight();
-        }
-        if (event.logicalKey == LogicalKeyboardKey.keyK) {
-          isGameOver = true;
+        } else if (event.logicalKey == LogicalKeyboardKey.keyK) {
+          setState(() {
+            isGameOver = true;
+          });
         }
       },
       child: GestureDetector(
@@ -263,7 +255,7 @@ List<List<dynamic>> generateBricks(int rows) {
                   playerX: playerX,
                   playerWidth: playerWidth,
                 ),
-                for (var brick in MyBricks)
+                for (var brick in bricks)
                   MyBrick(
                     brickX: brick[0],
                     brickY: brick[1],
@@ -279,4 +271,3 @@ List<List<dynamic>> generateBricks(int rows) {
     );
   }
 }
-
