@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names, non_constant_identifier_names
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/scheduler.dart';
@@ -38,31 +36,26 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
   double playerX = -0.2;
   static const double playerWidth = 0.4;
 
+  // STEP 4: configure the brick properties with values
   // Brick configuration
-  /*
-  step 4: configure the brick properties with values
-  */
   static const double brickWidth = 0.4;
   static const double brickHeight = 0.05;
   static const double brickGap = 0.01;
+  // go through the wallGap formula with the diagram 
   static const int numberOfBricksInRow = 1;
   static const double wallGap = 
       0.5 * (2 - numberOfBricksInRow * brickWidth - (numberOfBricksInRow - 1) * brickGap);
   static const double firstBrickX = -1 + wallGap;
   static const double firstBrickY = -0.7;
 
+  // STEP 5: add an empty brick list
   // Brick list
-  
-  /*
-  STEP 5:
-        add an empty brick list
-  */
   List<List<dynamic>> bricks = [];
 
   @override
   void initState() {
     super.initState();
-    bricks = generateBricks(3); // Start with 3 rows
+    bricks = generateBricks(1); // Start with 3 rows
     _ticker = createTicker((Duration elapsed) {
       if (hasGameStarted && !isGameOver) {
         setState(() {
@@ -220,9 +213,7 @@ class HomePageState extends State<HomePage> with TickerProviderStateMixin {
     });
   }
 
-  /* STEP 10: 
-          creates a grid of bricks for the game
-  */
+  // STEP 10: CREATES A GRID OF BRICKS FOR THE GAME
   List<List<dynamic>> generateBricks(int rows) {
     // initialise all the bricks where the newbricks will be stored
     final List<List<dynamic>> newBricks = [];
